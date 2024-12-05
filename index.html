@@ -13,40 +13,61 @@
             margin: 0 auto;
             padding: 1rem;
             max-width: 1100px;
+            background: #121212;
+            color: #e0e0e0;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        body.light-mode {
             background: #f0f4f8;
+            color: #000;
         }
         #wordCloud {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             padding: 1rem;
-            background: white;
+            background: #1e1e1e;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             min-height: 300px;
             align-items: center;
             justify-content: center;
             font-size: 17px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        body.light-mode #wordCloud {
+            background: white;
+            color: #000;
         }
         .word {
             padding: 4px 8px;
             border-radius: 4px;
-            background: #e0e7ff;
+            background: #3a3a3a;
             transition: all 0.3s ease;
+        }
+        body.light-mode .word {
+            background: #e0e7ff;
         }
         #status {
             padding: 8px 16px;
             border-radius: 0.75em;
-            background: #9ca3af;
+            background: #4a4a4a;
             color: white;
             font-size: 0.75em;
+        }
+        body.light-mode #status {
+            background: #9ca3af;
         }
         .stats {
             margin-top: 20px;
             padding: 10px;
-            background: white;
+            background: #1e1e1e;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        body.light-mode .stats {
+            background: white;
+            color: #000;
         }
         #debug {
             margin-top: 1rem;
@@ -128,19 +149,18 @@
             margin-right: 0.5em;
         }
     </style>
-    <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9J005Ljg4MyAyLjQ3YS43NS43NSAwIDAgMC0xLjA2IDEuMDZsMi42NDcgMi42NDdhLjc1Ljc1IDAgMSAwIDEuMDYtMS4wNnpNNC41OSAzLjUyOEEuNzUuNzUgMCAwIDAgMy41MjcgNC41OWw1LjgyNCA1LjgyNGEuNzUuNzUgMCAxIDAgMS4wNi0xLjA2MXptMTAuNzI4IDQuNDMxYS43NS43NSAwIDAgMC0xLjM0MiAwTDExLjk3IDExLjk3bC00LjAxIDIuMDA2YS43NS43NSAwIDAgMCAwIDEuMzQybDQuMDExIDIuMDA2IDIuMDA2IDQuMDExYS43NS43NSAwIDAgMCAxLjM0MiAwbDIuMDA2LTQuMDExIDQuMDExLTIuMDA2YS43NS43NSAwIDAgMCAwLTEuMzQybC00LjAxMS0yLjAwNnpNMy41MyA4LjgyM2EuNzUuNzUgMCAwIDAtMS4wNiAxLjA2bDIuNjQ3IDIuNjQ3YS43NS43NSAwIDAgMCAxLjA2LTEuMDZ6Jy8+PC9zdmc+" />
+    <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9J009Ljg4MyAyLjQ3YS43NS43NSAwIDAgMC0xLjA2IDEuMDZsMi42NDcgMi42NDdhLjc1Ljc1IDAgMSAwIDEuMDYtMS4wNnpNNC41OSAzLjUyOEEuNzUuNzUgMCAwIDAgMy41MjcgNC41OWw1LjgyNCA1LjgyNGEuNzUuNzUgMCAxIDAgMS4wNi0xLjA2MXptMTAuNzI4IDQuNDMxYS43NS43NSAwIDAgMC0xLjM0MiAwTDExLjk3IDExLjk3bC00LjAxIDIuMDA2YS43NS43NSAwIDAgMCAwIDEuMzQybDQuMDExIDIuMDA2IDIuMDA2IDQuMDExYS43NS43NSAwIDAgMCAxLjM0MiAwbDIuMDA2LTQuMDExIDQuMDExLTIuMDA2YS43NS43NSAwIDAgMCAwLTEuMzQybC00LjAxMS0yLjAwNnpNMy41MyA4LjgyM2EuNzUuNzUgMCAwIDAtMS4wNiAxLjA2bDIuNjQ3IDIuNjQ3YS43NS43NSAwIDAgMCAxLjA2LTEuMDZ6Jy8+PC9zdmc+" />
 </head>
-<body>
+<body class="dark-mode">
     <h1>Bluesky: 100 most popular words in the last 5 seconds</h1>
 
     <div class="controls">
         <div>
-            <button id="pauseBtn">Pause</button>
-            <button id="resumeBtn" disabled>Resume</button>
+            <button id="toggle-btn">⏸️ Pause</button>
+            <button id="toggleDarkMode">☀️ Light Mode</button>
         </div>
         <span id="status">Connecting...</span>
     </div>
-
     <div id="wordCloud">Waiting for data...</div>
 
     <div class="stats">
@@ -164,7 +184,6 @@
         let messageCount = 0;
         let debugLines = [];
         let wsConnection = null;
-        let isPaused = false;
 
         let updateInterval;  // for time interval
 
@@ -317,23 +336,24 @@
             });
         }
 
-        pauseBtn.addEventListener('click', () => {
-            isPaused = true;
-            pauseBtn.disabled = true;
-            resumeBtn.disabled = false;
-            if (wsConnection) {
-                wsConnection.close();
-                wsConnection = null;
-            }
-        });
+        const toggleBtn = document.getElementById('toggle-btn');
+        let isPaused = false;
 
-        resumeBtn.addEventListener('click', () => {
-            isPaused = false;
-            pauseBtn.disabled = false;
-            resumeBtn.disabled = true;
-            connectWebSocket();
-            updateWordCloud();
-            updateInterval = setInterval(updateWordCloud, CLOUD_UPDATE_INTERVAL);
+        toggleBtn.addEventListener('click', () => {
+            isPaused = !isPaused;
+            toggleBtn.textContent = isPaused ? '▶️ Resume' : '⏸️ Pause';
+
+            if (isPaused) {
+                if (wsConnection) {
+                    wsConnection.close();
+                    wsConnection = null;
+                }
+                clearInterval(updateInterval);
+            } else {
+                connectWebSocket();
+                updateWordCloud();
+                updateInterval = setInterval(updateWordCloud, CLOUD_UPDATE_INTERVAL);
+            }
         });
 
         // Initial connection
@@ -346,7 +366,19 @@
             updateInterval = setInterval(updateWordCloud, CLOUD_UPDATE_INTERVAL);
         }, 2000);
 
+    </script>
+    <script>
+        const toggleDarkModeButton = document.getElementById('toggleDarkMode');
+        toggleDarkModeButton.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            document.body.classList.toggle('dark-mode');
 
+            if (document.body.classList.contains('light-mode')) {
+                toggleDarkModeButton.textContent = '🌙 Dark Mode';
+            } else {
+                toggleDarkModeButton.textContent = '☀️ Light Mode';
+            }
+        });
     </script>
 </body>
 </html>
