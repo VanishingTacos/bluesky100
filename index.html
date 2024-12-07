@@ -17,9 +17,19 @@
             color: #e0e0e0;
             transition: background 0.3s ease, color 0.3s ease;
         }
+        @media (prefers-color-scheme: light) {
+            body {
+                background: #f0f4f8;
+                color: #000;
+            }
+        }
         body.light-mode {
             background: #f0f4f8;
             color: #000;
+        }
+        body.dark-mode {
+            background: #121212;
+            color: #e0e0e0;
         }
         #wordCloud {
             display: flex;
@@ -35,9 +45,19 @@
             font-size: 17px;
             transition: background 0.3s ease, color 0.3s ease;
         }
+        @media (prefers-color-scheme: light) {
+            #wordCloud {
+                background: white;
+                color: #000;
+            }
+        }
         body.light-mode #wordCloud {
             background: white;
             color: #000;
+        }
+        body.dark-mode #wordCloud {
+            background: #1e1e1e;
+            color: #e0e0e0;
         }
         .word {
             padding: 4px 8px;
@@ -45,8 +65,16 @@
             background: #3a3a3a;
             transition: all 0.3s ease;
         }
+        @media (prefers-color-scheme: light) {
+            .word {
+                background: #e0e7ff;
+            }
+        }
         body.light-mode .word {
             background: #e0e7ff;
+        }
+        body.dark-mode .word {
+            background: #3a3a3a;
         }
         #status {
             padding: 8px 16px;
@@ -55,8 +83,16 @@
             color: white;
             font-size: 0.75em;
         }
+        @media (prefers-color-scheme: light) {
+            #status {
+                background: #9ca3af;
+            }
+        }
         body.light-mode #status {
             background: #9ca3af;
+        }
+        body.dark-mode #status {
+            background: #4a4a4a;
         }
         .stats {
             margin-top: 20px;
@@ -65,9 +101,19 @@
             border-radius: 8px;
             transition: background 0.3s ease, color 0.3s ease;
         }
+        @media (prefers-color-scheme: light) {
+            .stats {
+                background: white;
+                color: #000;
+            }
+        }
         body.light-mode .stats {
             background: white;
             color: #000;
+        }
+        body.dark-mode .stats {
+            background: #1e1e1e;
+            color: #e0e0e0;
         }
         #debug {
             margin-top: 1rem;
@@ -83,7 +129,7 @@
         h1 {
             color: #1e40af;
             margin-bottom: 1rem;
-            margin-top:0;
+            margin-top: 0;
         }
         .controls {
             margin-bottom: 1rem;
@@ -151,7 +197,7 @@
     </style>
     <link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9J009Ljg4MyAyLjQ3YS43NS43NSAwIDAgMC0xLjA2IDEuMDZsMi42NDcgMi42NDdhLjc1Ljc1IDAgMSAwIDEuMDYtMS4wNnpNNC41OSAzLjUyOEEuNzUuNzUgMCAwIDAgMy41MjcgNC41OWw1LjgyNCA1LjgyNGEuNzUuNzUgMCAxIDAgMS4wNi0xLjA2MXptMTAuNzI4IDQuNDMxYS43NS43NSAwIDAgMC0xLjM0MiAwTDExLjk3IDExLjk3bC00LjAxIDIuMDA2YS43NS43NSAwIDAgMCAwIDEuMzQybDQuMDExIDIuMDA2IDIuMDA2IDQuMDExYS43NS43NSAwIDAgMCAxLjM0MiAwbDIuMDA2LTQuMDExIDQuMDExLTIuMDA2YS43NS43NSAwIDAgMCAwLTEuMzQybC00LjAxMS0yLjAwNnpNMy41MyA4LjgyM2EuNzUuNzUgMCAwIDAtMS4wNiAxLjA2bDIuNjQ3IDIuNjQ3YS43NS43NSAwIDAgMCAxLjA2LTEuMDZ6Jy8+PC9zdmc+" />
 </head>
-<body class="dark-mode">
+<body>
     <h1>Bluesky: 100 most popular words in the last 5 seconds</h1>
 
     <div class="controls">
@@ -369,15 +415,31 @@
     </script>
     <script>
         const toggleDarkModeButton = document.getElementById('toggleDarkMode');
-        toggleDarkModeButton.addEventListener('click', () => {
-            document.body.classList.toggle('light-mode');
-            document.body.classList.toggle('dark-mode');
 
-            if (document.body.classList.contains('light-mode')) {
-                toggleDarkModeButton.textContent = '🌙 Dark Mode';
-            } else {
+        const applyMode = (isDarkMode) => {
+            if (isDarkMode) {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
                 toggleDarkModeButton.textContent = '☀️ Light Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                toggleDarkModeButton.textContent = '🌙 Dark Mode';
             }
+        };
+
+        toggleDarkModeButton.addEventListener('click', () => {
+            const isDarkMode = document.body.classList.contains('light-mode');
+            applyMode(isDarkMode);
+        });
+
+        // Apply prefers-color-scheme setting initially
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        applyMode(prefersDarkScheme.matches);
+
+        // Listen for changes to the prefers-color-scheme setting
+        prefersDarkScheme.addEventListener('change', (e) => {
+            applyMode(e.matches);
         });
     </script>
 </body>
